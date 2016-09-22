@@ -157,8 +157,17 @@ if !has("unix")
    behave mswin
 endif
 
-"ucs-bom,utf-8,latin1
-set fileencodings=utf-8
+
+
+"-----------Encoding    -------------------------------
+"
+set fileencodings=utf8
+set encoding=utf8
+set termencoding=utf8
+set fileencoding=utf8
+
+"-----------end encoding ------------------------------
+
 set diffexpr=MyDiff()
 
  function MyDiff()
