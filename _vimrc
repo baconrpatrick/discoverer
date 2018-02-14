@@ -1,6 +1,4 @@
-
 set nocompatible
-
 set belloff=all
 set cmdheight=3
 set history=100	" keep 50 lines of command line history
@@ -37,12 +35,6 @@ set guioptions -=T
 
 " *********************************
 "
-"
-"set spell spelllang=en_us
-"set nospell
-"-----------default/unnamed register = clipboard-------
-"set clipboard+=unnamed
-
 "-----------Powershell for Shell ----------------------
 " for vimdiff, comment the shell and shellcmdflag settings
 "set shell=powershell
@@ -51,7 +43,6 @@ set guioptions -=T
 "set shellredir=>
 
 "-----------I use Oracle SQL --------------------------
-
 let g:sql_type_default = 'Oracle'
 "let s:SQL_SetType('Oracle')
 
@@ -67,10 +58,30 @@ set softtabstop=4 " let backspace delete indent
 set tabstop=4 " an indentation every four columns
 set wrap " wrap long lines
 
+
+" saw this suggested for conemu
+"if !has("gui_running")
+"    set term=xterm
+"    set t_Co=256
+""    let &t_AB="\e[48;5;%dm"
+""    let &t_AF="\e[38;5;%dm"
+"endif
+
+set guifont=Inconsolata\ 12
+
+if has("unix")
+    set t_Co=256
+endif
+
+colorscheme murphy
+
+"source $VIMRUNTIME/colors/desert.vim
+
+"----------file type ---------------------------------
+
 autocmd FileType sql,pkb,pks,c,cpp,java,php,js,python,twig,xml,yml autocmd BufWritePre <buffer> :call setline(1,map(getline(1,"$"),'substitute(v:val,"\\s\\+$","","")'))
-" }
-"
-"
+
+
 "----------Mappings-----------------------------------
 " use space key for visual inner word selection
 " http://learnvimscriptthehardway.stevelosh.com/chapters/03.html
@@ -97,8 +108,6 @@ nnoremap <leader>u YpVr-
 "nnoremap <Char-0x07F> <BS>
 
 
-
-
 "----------Abbreviations------------------------------
 ab cformat# column col_1 format a30
 ab constraint#  select <CR>* <CR>from <CR>all_constraints cons, <CR>all_cons_columns conc <CR>where <CR>1=1 <CR>and conc.table_name = '&table' <CR>and cons.owner = conc.owner <CR>and cons.table_name = conc.table_name <CR>and cons.constraint_name = conc.constraint_name
@@ -107,10 +116,6 @@ ab index#  select <CR>* <CR>from all_indexes ind, <CR>all_ind_columns icol <CR>w
 ab meeting# ---------------------------------------------------------<CR>--      meeting notes                                  --<CR>--                                                     --<CR>--                                                     --<CR>---------------------------------------------------------<CR>
 ab spool# spool C:\temp\temp1.lst
 ab with# with t(a_col) <CR>as<CR>(select 'stuff' a_col from dual) <CR>select<CR> * <CR>from t
-
-"
-"
-"-----------Runtime Setting---------------------------
 
 
 
@@ -125,89 +130,8 @@ let g:netrw_special_syntax= 1
 
 "-----------Formatting --------------------------------
 "
-" saw this suggested for conemu
-"if !has("gui_running")
-"    set term=xterm
-"    set t_Co=256
-""    let &t_AB="\e[48;5;%dm"
-""    let &t_AF="\e[38;5;%dm"
-"endif
 
-if has("gui_running") && has("gui_gtk2")
-   set guifont=Inconsolata\ 12
-endif
-
-if has("gui_win32") || has("gui_win64")
-  hi Comment ctermbg=0
-  set guifont=Consolas:h11:cANSI
-endif
-
-if !has("unix") && !has("gui_running") 
-"    source $VIMRUNTIME\plugin\csapprox\plugin\CSApprox.vim
-"    source $VIMRUNTIME\plugin\vim-csexact\plugin\CSExact.vim
-endif
-
-if has("unix")
-    set t_Co=256
-"    source $VIMRUNTIME/plugin/csapprox/plugin/CSApprox.vim
-"    source $VIMRUNTIME/plugin/vim-csexact/plugin/CSExact.vim
-endif
-
-
-"-----------Encoding    -------------------------------
-"
-set fileencodings=utf8
-set encoding=utf8
-set termencoding=utf8
-set fileencoding=utf8
-
-"-----------end encoding ------------------------------
-
-"-----------Plugins ----------------------------------
-" see help runtimepath or rtp, echo $HOME
-"  http://stackoverflow.com/questions/8709091/plugins-in-gvim-not-working
-"  
-"  would like to use this package manager: 
-"  https://github.com/k-takata/minpac
-"
-"  this looks interesting, but not for windows:
-"  https://github.com/camfowler/vim
-"
-"
-if has("unix") 
-	source $VIMRUNTIME/colors/desert.vim
-	source $VIMRUNTIME/plugin/vimballPlugin.vim
-	source $HOME/vimfiles/plugin/showmarks.vim
-"
-"   ***moved this to pack\baconp\start**** 
-"
-"	source $HOME/vimfiles/plugin/AlignPlugin.vim
-"   sqlutilities depends on align dr chip
-"   source $HOME/vimfiles/plugin/SQLUtilities.vim
-"	throws a lot of errors in cygwin
-"	source $HOME/vim/plugin/easy_align.vim 
-"	source $HOME/vim/plugin/Tabular.vim 
-endif
-
-if !has("unix")
-	source $VIMRUNTIME\vimrc_example.vim
-	source $VIMRUNTIME\mswin.vim
-	source $VIMRUNTIME\colors\desert.vim
-	source $VIMRUNTIME\plugin\vimballPlugin.vim
-	source $HOME\vimfiles\plugin\showmarks.vim
-"
-"   ***moved this to pack\baconp\start**** 
-"
-"	source $HOME\vimfiles\plugin\AlignPlugin.vim
-"   sqlutilities depends on align dr chip
-"	source $HOME\vimfiles\plugin\SQLUtilities.vim
-"	source $HOME\vimfiles\plugin\easy_align.vim 
-"	source $HOME\vimfiles\plugin\Tabular.vim 
-"	source $HOME\vimfiles\plugin\matrix.vim 
-"	source $HOME\vimfiles\plugin\vimwiki.vim 
-"   source $HOME\vimfiles\plugin\ttcoach\plugin\ttcplug.vim
-endif
-"-----------end plugins -------------------------------
+"-----------ms windows check---------------------------
 
 if !has("unix") 
    behave mswin
@@ -216,6 +140,7 @@ endif
 "-----------package manager----------------------------
 
 "most of my plugins have been placed in \pack\baconp\start\
+"  https://github.com/k-takata/minpac
 
 packadd minpac
 call minpac#init()
