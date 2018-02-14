@@ -1,0 +1,16 @@
+
+
+" *********************************
+" remove menu and tool bar for gui
+"
+set guioptions -=m 
+set guioptions -=T
+
+" *********************************
+"
+
+"if has("gui_running") && has("gui_gtk2")
+"endif
+"
+set guifont=Consolas:h11:cANSI
+source $VIMRUNTIME/colors/desert.vim
