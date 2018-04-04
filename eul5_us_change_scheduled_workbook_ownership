@@ -1,0 +1,115 @@
+--1 Get existing workbook and scheduled workbook details
+--2 Log in as eul5_us@db:
+
+
+SELECT
+    doc_owner.user_name,
+    doc_owner.eu_id,
+    docs.doc_eu_id,
+    docs.doc_id,
+    docs.doc_name,
+    docs.doc_developer_key,
+    docs.doc_updated_date,
+    docs.doc_batch
+FROM
+    eul5_us.eul5_documents docs,
+    (
+        SELECT
+            fu.user_name,
+            euluser.eu_id
+        FROM
+            eul5_us.eul5_eul_users euluser,
+            applsys.fnd_user fu
+        WHERE
+            euluser.eu_username = '#'
+            || TO_CHAR(fu.user_id)
+            AND   fu.user_name = nvl(:user_name,fu.user_name)
+    ) doc_owner
+WHERE
+    docs.doc_eu_id = doc_owner.eu_id
+    AND   docs.doc_name LIKE '%'
+    ||:doc_name
+    || '%'
+ORDER BY
+    docs.doc_name,
+    docs.doc_updated_date;
+
+-the column, doc_batch is a Boolean identifying whether the workbook is a scheduled workbook or not.
+
+--3. Be aware of the access privileges of the reports which reside in eul5_access_privs
+
+
+--4. Update the workbook and the scheduled workbook
+
+UPDATE eul5_us.eul5_documents
+    SET
+        doc_eu_id =:l_doc_eu_id_mine
+WHERE
+    doc_id =:doc_id;
+
+
+--5. One should tackle one scheduled report at a time.  Modify the subquery to be specific associated with the report you need/want to modify.
+
+--Here is a permutation of the subquery (predicate the same):
+
+SELECT
+    ebt.bqt_id,
+    ebt.bqt_bq_id,
+    ebt.bqt_brr_id,
+    ebt.bqt_table_name,
+    ebt.bqt_element_state,
+    ebr.brr_id,
+    ebr.brr_br_id,
+    ebr.brr_run_number,
+    ebr.brr_state,
+    br.br_name,
+    br.br_workbook_name,
+    br.br_eu_id,
+    br.br_rfu_id,
+    br.br_created_by,
+    ebr.brr_br_id
+FROM
+    eul5_us.eul5_bq_tables ebt
+    JOIN eul5_us.eul5_br_runs ebr ON ebt.bqt_brr_id = ebr.brr_id
+    JOIN eul5_us.eul5_batch_reports br ON ebr.brr_br_id  = br.br_id
+    WHERE
+    1 = 1
+    AND   (ebt.bqt_table_name LIKE :b_schedule_schema_table_name || 'R%'
+    OR br.br_workbook_name LIKE :b_workbook_name || '%')
+     ORDER BY ebr.brr_run_number;
+
+--6. Update the batch scheduled report ownership
+
+
+UPDATE eul5_batch_reports br
+    SET
+        br.br_eu_id =:l_doc_eu_id_mine_308244
+WHERE
+    br.br_id IN (
+        SELECT DISTINCT
+            ebr.brr_br_id
+        FROM
+            eul5_us.eul5_bq_tables ebt
+            JOIN eul5_us.eul5_br_runs ebr ON ebt.bqt_brr_id = ebr.brr_id
+            JOIN eul5_us.eul5_batch_reports br ON ebr.brr_br_id = br.br_id
+        WHERE
+            1 = 1
+            AND   (
+                ebt.bqt_table_name LIKE :b_schedule_schema_table_name
+                || 'R%'
+                OR    br.br_workbook_name LIKE :b_workbook_name
+                || '%'
+            )
+    );
+
+
+--7. Make all the changes to the scheduled workbook (e.g. delete).
+
+--8. Change back the ownership of the non-scheduled workbook
+
+select
+update eul5_us.eul5_documents
+set doc_eu_id = :l_doc_eu_id  
+where
+doc_id = :doc_id
+;
