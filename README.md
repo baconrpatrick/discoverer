@@ -1,2 +1,4 @@
-# _vimrc
-my vimrc
+*******************************
+discoverer sql/plsql snippets
+*******************************
+
