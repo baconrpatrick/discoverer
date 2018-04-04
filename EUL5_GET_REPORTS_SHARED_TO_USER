@@ -1,0 +1,14 @@
+SELECT
+    fu.user_name,
+    doc.doc_id,
+    doc.doc_name,
+    doc.doc_developer_key,
+    ap.*
+FROM
+    eul5_us.eul5_access_privs ap
+    JOIN eul5_us.eul5_eul_users eu ON ap.ap_eu_id = eu.eu_id
+                                      AND ap.ap_type = 'GD'
+    JOIN apps.fnd_user fu ON eu.eu_username = '#'
+    || TO_CHAR(fu.user_id)
+                             AND fu.user_name =:b_user_name
+    JOIN eul5_us.eul5_documents doc ON ap.gd_doc_id = doc.doc_id;
