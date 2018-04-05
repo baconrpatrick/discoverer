@@ -1,0 +1,14 @@
+UPDATE eul5_us.eul5_documents
+    SET
+        doc_eu_id = (
+            SELECT
+                eu.eu_id
+            FROM
+                eul5_us.eul5_eul_users eu
+                JOIN apps.fnd_user fu ON eu.eu_username = '#'
+                || TO_CHAR(fu.user_id)
+                                         AND fu.user_name =:b_user_name
+                                         --obtain user name
+        )
+WHERE
+    doc_id =:doc_id;
