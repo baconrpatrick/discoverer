@@ -1,0 +1,101 @@
+DECLARE
+    v_eul5_eul_users_eu_id      eul5_us.eul5_eul_users.eu_id%TYPE;
+    v_fnd_user_user_name_to     apps.fnd_user.user_name%TYPE;
+    v_fnd_user_user_name_from   apps.fnd_user.user_name%TYPE;
+    v_eul5_documents_doc_id     eul5_us.eul5_documents.doc_id%TYPE;
+    v_eul5_ap_created_date      eul5_us.eul5_access_privs.ap_created_date%TYPE;
+
+    -------------------------------------------------------
+    v_error_code                NUMBER(38);
+    v_error_message             VARCHAR2(200);
+BEGIN
+    v_eul5_documents_doc_id := 1689089;  --the doc id
+    v_fnd_user_user_name_to := 'BACONP'; -- workbook shared to this user
+    v_fnd_user_user_name_from := 'DOEJ';  --workbook owner
+
+    BEGIN
+        SELECT
+            eu_id
+        INTO v_eul5_eul_users_eu_id
+        FROM
+            eul5_us.eul5_eul_users eu
+            JOIN apps.fnd_user fu ON eu.eu_username = '#' || TO_CHAR(fu.user_id)
+        WHERE
+            fu.user_name = v_fnd_user_user_name_to;
+
+        dbms_output.put_line('username  to=> ' || v_fnd_user_user_name_to);
+    EXCEPTION
+        WHEN OTHERS THEN
+            v_error_code := sqlcode;
+            v_error_message := sqlerrm;
+            dbms_output.put_line(TO_CHAR(v_error_code)
+                                   || '- '
+                                   || v_error_message);
+    END;
+
+    BEGIN
+        SELECT
+            docs.doc_id
+        INTO v_eul5_documents_doc_id
+        FROM
+            eul5_us.eul5_documents docs
+            JOIN (
+                SELECT
+                    fu.user_name,
+                    euluser.eu_id
+                FROM
+                    eul5_us.eul5_eul_users euluser
+                    JOIN applsys.fnd_user fu ON euluser.eu_username = '#' || TO_CHAR(fu.user_id)
+                                                AND fu.user_name = v_fnd_user_user_name_from --workbook owner
+            ) doc_owner ON docs.doc_eu_id = doc_owner.eu_id
+        WHERE
+            1 = 1
+            AND docs.doc_id = v_eul5_documents_doc_id;
+
+        dbms_output.put_line('workbook owner=> '
+                               || v_fnd_user_user_name_from
+                               || 'workbook doc id => '
+                               || TO_CHAR(v_eul5_documents_doc_id) );
+
+    EXCEPTION
+        WHEN OTHERS THEN
+            v_error_code := sqlcode;
+            v_error_message := sqlerrm;
+            dbms_output.put_line(TO_CHAR(v_error_code)
+                                   || '- '
+                                   || v_error_message);
+    END;
+
+--grant a user access to a workbook
+
+    INSERT INTO eul5_us.eul5_access_privs (
+        ap_id,
+        ap_type,
+        ap_eu_id,
+        ap_priv_level,
+        gp_app_id,
+        gba_ba_id,
+        gd_doc_id,
+        ap_element_state,
+        ap_created_by,
+        ap_created_date,
+        ap_updated_by,
+        ap_updated_date,
+        notm
+    ) VALUES (
+        eul5_id_seq.NEXTVAL,  --ap_id
+        'GD',  --ap_type
+        l_eu_id,  --ap_eu_id
+        0,  --ap_priv_level
+        NULL,  --gp_app_id
+        NULL,  --gba_ba_id
+        v_eul5_documents_doc_id,  --gd_doc_id
+        0,  --ap_element_state
+        'EUL5_US',  --ap_created_by
+        v_eul5_ap_created_date,  --ap_created_date
+        'EUL5_US',  --ap_updated_by
+        v_eul5_ap_created_date,  --ap_updated_date
+        0  --notm
+    );
+
+END;
