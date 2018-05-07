@@ -1,0 +1,19 @@
+WITH t AS (
+    SELECT
+        regexp_substr(eul5_us.eul5_get_item_name(qs.qs_id),'\d[.](\d+)',1,level,NULL,1) exp_id,
+        eul5_us.eul5_get_item_name(qs.qs_id)
+    FROM
+        eul5_us.eul5_qpp_stats qs
+    WHERE
+        1 = 1
+        AND qs_id IN (
+            311660,
+            311661
+        )
+    CONNECT BY
+        regexp_substr(eul5_us.eul5_get_item_name(qs.qs_id),'\d[.](\d+)',1,level,NULL,1) IS NOT NULL
+) SELECT
+    expr.*
+  FROM
+    eul5_expressions expr join t on expr.exp_id = t.exp_id
+;
