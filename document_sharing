@@ -3,7 +3,6 @@ WITH doc_share AS (
         doc.doc_id,
         doc.doc_name,
         doc.doc_developer_key,
-        to_number(regexp_substr(eu.eu_username,'#(\d+)#\d+',1,1,NULL,1) ),
         resp.responsibility_name shared_resp_or_user
     FROM
         eul5_us.eul5_access_privs ap
@@ -19,7 +18,6 @@ WITH doc_share AS (
         doc.doc_id,
         doc.doc_name,
         doc.doc_developer_key,
-        to_number(regexp_substr(eu.eu_username,'#(\d+)#\d+',1,1,NULL,1) ),
         fu.user_name shared_resp_or_user
     FROM
         eul5_us.eul5_access_privs ap
