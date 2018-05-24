@@ -1,0 +1,35 @@
+WITH doc_share AS (
+    SELECT
+        doc.doc_id,
+        doc.doc_name,
+        doc.doc_developer_key,
+        to_number(regexp_substr(eu.eu_username,'#(\d+)#\d+',1,1,NULL,1) ),
+        resp.responsibility_name shared_resp_or_user
+    FROM
+        eul5_us.eul5_access_privs ap
+        JOIN eul5_us.eul5_eul_users eu ON ap.ap_eu_id = eu.eu_id
+                                          AND ap.ap_type = 'GD'
+        JOIN apps.fnd_responsibility_tl resp ON to_number(regexp_substr(eu.eu_username,'#(\d+)#\d+',1,1,NULL,1) ) = resp.responsibility_id
+                                                AND resp.language = sys_context('USERENV','LANG')
+        JOIN eul5_us.eul5_documents doc ON ap.gd_doc_id = doc.doc_id
+    WHERE
+        doc.doc_id = 426166
+    UNION ALL
+    SELECT
+        doc.doc_id,
+        doc.doc_name,
+        doc.doc_developer_key,
+        to_number(regexp_substr(eu.eu_username,'#(\d+)#\d+',1,1,NULL,1) ),
+        fu.user_name shared_resp_or_user
+    FROM
+        eul5_us.eul5_access_privs ap
+        JOIN eul5_us.eul5_eul_users eu ON ap.ap_eu_id = eu.eu_id
+                                          AND ap.ap_type = 'GD'
+        JOIN apps.fnd_user fu ON eu.eu_username = '#' || TO_CHAR(fu.user_id)
+        JOIN eul5_us.eul5_documents doc ON ap.gd_doc_id = doc.doc_id
+) SELECT
+    *
+  FROM
+    doc_share
+  WHERE
+    doc_share.doc_name =:b_doc_name  ;
