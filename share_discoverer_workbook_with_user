@@ -1,0 +1,92 @@
+-- execute using eul5_us@erp account
+-- works in a 12.2 EBS environment
+
+DECLARE
+    v_eul5_doc_name   eul5_us.eul5_documents.doc_name%TYPE;
+    v_fnd_user_shared_to   apps.fnd_user.user_name%TYPE;
+    v_fnd_user_owner  apps.fnd_user.user_name%TYPE;
+    v_eul5_eu_id      eul5_us.eul5_eul_users.eu_id%TYPE;
+    v_eul5_doc_id     eul5_us.eul5_documents.doc_id%TYPE;
+    v_date            DATE;
+    -------------------------------------------------------
+    v_error_code      NUMBER(38);
+    v_error_message   VARCHAR2(200);
+BEGIN
+    v_date := SYSDATE;
+
+        --this is the workbook which is going to be shared
+    v_eul5_doc_name := 'Corp_GL JE Support Check';
+        --this is the user intended to have workbook shared with
+    v_fnd_user_shared_to := 'RUBBLEB';
+    v_fnd_user_owner := 'FLINTSTONEF';
+
+
+SELECT euluser.eu_id
+into v_eul5_eu_id
+  FROM eul5_us.eul5_eul_users euluser,
+    apps.fnd_user fu
+  WHERE euluser.eu_username = '#'
+    || TO_CHAR(fu.user_id)
+  AND fu.user_name =  v_fnd_user_shared_to;
+
+
+
+    SELECT
+        docs.doc_id
+    INTO
+        v_eul5_doc_id
+    FROM
+        eul5_us.eul5_documents docs
+        JOIN (
+            SELECT
+                fu.user_name,
+                euluser.eu_id
+            FROM
+                eul5_us.eul5_eul_users euluser,
+                apps.fnd_user fu
+            WHERE
+                euluser.eu_username = '#' || TO_CHAR(fu.user_id)
+                AND fu.user_name =v_fnd_user_owner
+        ) doc_owner ON docs.doc_eu_id = doc_owner.eu_id
+    WHERE
+        1 = 1
+        AND docs.doc_name = v_eul5_doc_name;
+
+    INSERT INTO eul5_access_privs (
+        ap_id,
+        ap_type,
+        ap_eu_id,
+        ap_priv_level,
+        gp_app_id,
+        gba_ba_id,
+        gd_doc_id,
+        ap_element_state,
+        ap_created_by,
+        ap_created_date,
+        ap_updated_by,
+        ap_updated_date,
+        notm
+    ) VALUES (
+        eul5_id_seq.NEXTVAL,  --ap_id
+        'GD',   --ap_type
+        v_eul5_eu_id,   --ap_eu_id
+        0,   --ap_priv_level
+        NULL,   --gp_app_id
+        NULL,   --gba_ba_id
+        v_eul5_doc_id,   --gd_doc_id
+        0,   --ap_element_state
+        'EUL5_US',   --ap_created_by
+        v_date,   --ap_created_date
+        'EUL5_US',   --ap_updated_by
+        v_date,   --ap_updated_date
+        0   --notm
+    );
+
+EXCEPTION
+    WHEN OTHERS THEN
+        v_error_code := sqlcode;
+        v_error_message := sqlerrm;
+        dbms_output.put_line(TO_CHAR(v_error_code)
+                               || '- '
+                               || v_error_message);
+END;
