@@ -1,16 +1,15 @@
 -- execute using eul5_us@erp account
 -- works in a 12.2 EBS environment
-
 DECLARE
-    v_eul5_doc_name   eul5_us.eul5_documents.doc_name%TYPE;
+    v_eul5_doc_name        eul5_us.eul5_documents.doc_name%TYPE;
     v_fnd_user_shared_to   apps.fnd_user.user_name%TYPE;
-    v_fnd_user_owner  apps.fnd_user.user_name%TYPE;
-    v_eul5_eu_id      eul5_us.eul5_eul_users.eu_id%TYPE;
-    v_eul5_doc_id     eul5_us.eul5_documents.doc_id%TYPE;
-    v_date            DATE;
+    v_fnd_user_owner       apps.fnd_user.user_name%TYPE;
+    v_eul5_eu_id           eul5_us.eul5_eul_users.eu_id%TYPE;
+    v_eul5_doc_id          eul5_us.eul5_documents.doc_id%TYPE;
+    v_date                 DATE;
     -------------------------------------------------------
-    v_error_code      NUMBER(38);
-    v_error_message   VARCHAR2(200);
+    v_error_code           NUMBER(38);
+    v_error_message        VARCHAR2(200);
 BEGIN
     v_date := SYSDATE;
 
@@ -19,22 +18,19 @@ BEGIN
         --this is the user intended to have workbook shared with
     v_fnd_user_shared_to := 'RUBBLEB';
     v_fnd_user_owner := 'FLINTSTONEF';
-
-
-SELECT euluser.eu_id
-into v_eul5_eu_id
-  FROM eul5_us.eul5_eul_users euluser,
-    apps.fnd_user fu
-  WHERE euluser.eu_username = '#'
-    || TO_CHAR(fu.user_id)
-  AND fu.user_name =  v_fnd_user_shared_to;
-
-
+    SELECT
+        euluser.eu_id
+    INTO v_eul5_eu_id
+    FROM
+        eul5_us.eul5_eul_users euluser,
+        apps.fnd_user fu
+    WHERE
+        euluser.eu_username = '#' || TO_CHAR(fu.user_id)
+        AND fu.user_name = v_fnd_user_shared_to;
 
     SELECT
         docs.doc_id
-    INTO
-        v_eul5_doc_id
+    INTO v_eul5_doc_id
     FROM
         eul5_us.eul5_documents docs
         JOIN (
@@ -46,7 +42,7 @@ into v_eul5_eu_id
                 apps.fnd_user fu
             WHERE
                 euluser.eu_username = '#' || TO_CHAR(fu.user_id)
-                AND fu.user_name =v_fnd_user_owner
+                AND fu.user_name = v_fnd_user_owner
         ) doc_owner ON docs.doc_eu_id = doc_owner.eu_id
     WHERE
         1 = 1
