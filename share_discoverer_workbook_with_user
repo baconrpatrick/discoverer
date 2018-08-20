@@ -15,7 +15,7 @@ BEGIN
     v_date := SYSDATE;
 
         --this is the workbook which is going to be shared
-    v_eul5_doc_name := 'Corp_GL JE Support Check';
+    v_eul5_doc_name := 'Workbook Name';
         --this is the user intended to have workbook shared with
     v_fnd_user_shared_to := 'RUBBLEB';
     v_fnd_user_owner := 'FLINTSTONEF';
