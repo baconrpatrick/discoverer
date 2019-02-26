@@ -9,9 +9,10 @@ DECLARE
     v_error_code                NUMBER(38);
     v_error_message             VARCHAR2(200);
 BEGIN
-    v_eul5_documents_doc_id := 1689089;  --the doc id
-    v_fnd_user_user_name_to := 'BACONP'; -- workbook shared to this user
-    v_fnd_user_user_name_from := 'DOEJ';  --workbook owner
+    v_eul5_documents_doc_id := 2864013;  --the doc id
+    v_fnd_user_user_name_to := 'USER1'; -- workbook shared to this user
+    v_fnd_user_user_name_from := 'USER2';  --workbook owner
+    v_eul5_ap_created_date  := sysdate;    
 
     BEGIN
         SELECT
@@ -85,7 +86,7 @@ BEGIN
     ) VALUES (
         eul5_id_seq.NEXTVAL,  --ap_id
         'GD',  --ap_type
-        l_eu_id,  --ap_eu_id
+        v_eul5_eul_users_eu_id,  --ap_eu_id
         0,  --ap_priv_level
         NULL,  --gp_app_id
         NULL,  --gba_ba_id
